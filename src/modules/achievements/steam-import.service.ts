@@ -38,11 +38,12 @@ export class SteamImportService {
     appId: string,
     userId?: number,
     steamId?: string,
+    apiKeyOverride?: string,
   ): Promise<SteamImportResultDto> {
-    const apiKey = configuration.METADATA.STEAM.API_KEY;
+    const apiKey = apiKeyOverride || configuration.METADATA.STEAM.API_KEY;
     if (!apiKey) {
       throw new BadRequestException(
-        "METADATA_STEAM_API_KEY is not set. A Steam Web API key is required to import achievements and playtime.",
+        "No Steam Web API key available. Set it in the client's Steam settings or the server's METADATA_STEAM_API_KEY.",
       );
     }
 

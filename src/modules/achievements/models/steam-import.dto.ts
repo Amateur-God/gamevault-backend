@@ -21,6 +21,14 @@ export class SteamImportDto {
   @IsOptional()
   @IsString()
   steam_id?: string;
+
+  @ApiPropertyOptional({
+    description:
+      "Optional Steam Web API key. If provided, it overrides the server's METADATA_STEAM_API_KEY for this request (lets clients supply their own key).",
+  })
+  @IsOptional()
+  @IsString()
+  api_key?: string;
 }
 
 export class SteamImportResultDto {

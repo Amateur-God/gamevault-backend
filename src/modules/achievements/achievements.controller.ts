@@ -75,6 +75,7 @@ export class AchievementsController {
       body.app_id,
       request.user?.id,
       body.steam_id,
+      body.api_key,
     );
   }
 }
