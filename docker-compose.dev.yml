@@ -1,0 +1,20 @@
+# Development-only PostgreSQL 16 for local GameVault backend work.
+# Exposes Postgres on localhost:5432 so the backend can run outside Docker
+# via `pnpm start`. This file is additive and does not modify upstream
+# docker-compose.yml (which builds the full backend image).
+services:
+  db:
+    image: postgres:16
+    restart: unless-stopped
+    environment:
+      POSTGRES_USER: gamevault
+      POSTGRES_PASSWORD: gamevault
+      POSTGRES_DB: gamevault
+    ports:
+      # Host 5433 -> container 5432 (host 5432 is already used by a WSL relay).
+      - "5433:5432"
+    volumes:
+      - gamevault-dev-db:/var/lib/postgresql/data
+
+volumes:
+  gamevault-dev-db:
