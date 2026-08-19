@@ -68,6 +68,14 @@ export class GamevaultGame extends DatabaseEntity {
   })
   version?: string;
 
+  @Column({ nullable: true })
+  @ApiPropertyOptional({
+    description:
+      "SHA-256 checksum of the game file, used to verify package integrity before/after LAN transfer.",
+    example: "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+  })
+  checksum?: string;
+
   @Index()
   @Column({ nullable: true })
   @ApiPropertyOptional({

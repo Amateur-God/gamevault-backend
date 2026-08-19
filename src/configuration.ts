@@ -326,6 +326,10 @@ const configuration = {
       true,
     ),
     INDEX_CONCURRENCY: parseNumber(resolveEnv("GAMES_INDEX_CONCURRENCY"), 1),
+    CHECKSUM_ON_INDEX: parseBooleanEnvVariable(
+      resolveEnv("GAMES_CHECKSUM_ON_INDEX"),
+      false,
+    ),
     DEFAULT_ARCHIVE_PASSWORD:
       resolveEnv("GAMES_DEFAULT_ARCHIVE_PASSWORD") || "Anything",
     WINDOWS_SETUP_DEFAULT_INSTALL_PARAMETERS:

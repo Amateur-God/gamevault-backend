@@ -5,7 +5,9 @@ import {
 } from "@nestjs/common";
 import { SchedulerRegistry } from "@nestjs/schedule";
 import { constants } from "fs-extra";
+import { createHash } from "crypto";
 import { join } from "path";
+import { Readable } from "stream";
 import { MetadataService } from "../metadata/metadata.service";
 import { FilesService } from "./files.service";
 import { GamesService } from "./games.service";
@@ -99,6 +101,36 @@ describe("FilesService", () => {
     fsExtra.writeFile.mockResolvedValue(undefined);
 
     jest.spyOn(service as any, "index").mockResolvedValue(undefined);
+  });
+
+  describe("computeAndStoreChecksum", () => {
+    it("streams the file through SHA-256 and persists the digest", async () => {
+      const payload = Buffer.from("gamevault-package-bytes");
+      const expected = createHash("sha256").update(payload).digest("hex");
+
+      gamesService.findOneByGameIdOrFail.mockResolvedValue({
+        id: 5,
+        file_path: "/tmp/test-files/game.zip",
+      } as any);
+      gamesService.save.mockImplementation(async (g: any) => g);
+      (jest.requireMock("fs-extra").createReadStream as jest.Mock).mockReturnValue(
+        Readable.from([payload]),
+      );
+
+      const result = await service.computeAndStoreChecksum(5);
+
+      expect(result.checksum).toBe(expected);
+      expect(gamesService.save).toHaveBeenCalledWith(
+        expect.objectContaining({ checksum: expected }),
+      );
+    });
+
+    it("rejects when the game has no file", async () => {
+      gamesService.findOneByGameIdOrFail.mockResolvedValue({ id: 6 } as any);
+      await expect(service.computeAndStoreChecksum(6)).rejects.toThrow(
+        BadRequestException,
+      );
+    });
   });
 
   describe("upload", () => {

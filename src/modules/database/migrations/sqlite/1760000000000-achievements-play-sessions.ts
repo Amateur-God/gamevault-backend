@@ -1,8 +1,6 @@
 import { MigrationInterface, QueryRunner } from "typeorm";
 
-export class AchievementsPlaySessions1760000000000
-  implements MigrationInterface
-{
+export class AchievementsPlaySessions1760000000000 implements MigrationInterface {
   name = "AchievementsPlaySessions1760000000000";
 
   public async up(queryRunner: QueryRunner): Promise<void> {
@@ -93,7 +91,9 @@ export class AchievementsPlaySessions1760000000000
     await queryRunner.query(`DROP TABLE "play_session"`);
     await queryRunner.query(`DROP INDEX "UQ_ACHIEVEMENT_STATE"`);
     await queryRunner.query(`DROP INDEX "IDX_achievement_state_user_id"`);
-    await queryRunner.query(`DROP INDEX "IDX_achievement_state_achievement_id"`);
+    await queryRunner.query(
+      `DROP INDEX "IDX_achievement_state_achievement_id"`,
+    );
     await queryRunner.query(`DROP TABLE "achievement_state"`);
     await queryRunner.query(`DROP INDEX "UQ_ACHIEVEMENT"`);
     await queryRunner.query(`DROP INDEX "IDX_achievement_game_id"`);

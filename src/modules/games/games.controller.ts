@@ -89,6 +89,20 @@ export class GamesController {
     return this.filesService.indexAllFiles();
   }
 
+  /** Computes and stores the SHA-256 checksum for a game's file. */
+  @Put(":game_id/checksum")
+  @ApiOperation({
+    summary: "compute and store the SHA-256 checksum of a game file",
+    description:
+      "Streams the game file through SHA-256 and persists the digest so clients can verify package integrity after a LAN transfer. Admins only.",
+    operationId: "putGameChecksum",
+  })
+  @ApiOkResponse({ type: () => GamevaultGame })
+  @MinimumRole(Role.ADMIN)
+  async putGameChecksum(@Param() params: GameIdDto): Promise<GamevaultGame> {
+    return this.filesService.computeAndStoreChecksum(Number(params.game_id));
+  }
+
   /** Deletes a game file from disk. Admins only. */
   @Delete(":game_id")
   @ApiOperation({

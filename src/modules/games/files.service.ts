@@ -6,7 +6,7 @@ import {
   OnApplicationBootstrap,
   StreamableFile,
 } from "@nestjs/common";
-import { randomBytes } from "crypto";
+import { createHash, randomBytes } from "crypto";
 import { Response } from "express";
 import {
   Stats,
@@ -266,6 +266,18 @@ export class FilesService implements OnApplicationBootstrap {
         ...(existingGame && { existingGame: logGamevaultGame(existingGame) }),
       });
 
+      // Optionally compute the SHA-256 checksum for new/changed files so package
+      // integrity can be verified after LAN transfer. Disabled by default because
+      // hashing large game files is expensive; enable via GAMES_CHECKSUM_ON_INDEX.
+      if (
+        configuration.GAMES.CHECKSUM_ON_INDEX &&
+        existingGameTuple[0] !== GameExistence.EXISTS
+      ) {
+        gameToIndex.checksum = await this.calculateSha256(
+          gameToIndex.file_path,
+        );
+      }
+
       // Handle different cases of game existence
       switch (existingGameTuple[0]) {
         case GameExistence.EXISTS: {
@@ -315,6 +327,39 @@ export class FilesService implements OnApplicationBootstrap {
     }
   }
 
+  /** Streams a file through SHA-256 and returns the lowercase hex digest. */
+  private async calculateSha256(filePath: string): Promise<string> {
+    return new Promise<string>((resolve, reject) => {
+      const hash = createHash("sha256");
+      const stream = createReadStream(filePath);
+      stream.on("error", reject);
+      stream.on("data", (chunk) => hash.update(chunk));
+      stream.on("end", () => resolve(hash.digest("hex")));
+    });
+  }
+
+  /**
+   * Computes and persists the SHA-256 checksum of a game's file on demand.
+   * Used to (re)build integrity data without a full re-index.
+   */
+  public async computeAndStoreChecksum(
+    gameId: number,
+  ): Promise<GamevaultGame> {
+    const game = await this.gamesService.findOneByGameIdOrFail(gameId, {
+      loadDeletedEntities: false,
+    });
+    if (!game.file_path) {
+      throw new BadRequestException("Game has no file to checksum.");
+    }
+    game.checksum = await this.calculateSha256(game.file_path);
+    this.logger.log({
+      message: "Computed game checksum.",
+      game: logGamevaultGame(game),
+      checksum: game.checksum,
+    });
+    return this.gamesService.save(game);
+  }
+
   /** Updates the game information with the information provided by the file. */
   private async updateFileInfo(
     id: number,
@@ -334,6 +379,9 @@ export class FilesService implements OnApplicationBootstrap {
     gameToUpdate.version = updatesToApply.version;
     gameToUpdate.early_access = updatesToApply.early_access;
     gameToUpdate.type = updatesToApply.type;
+    if (updatesToApply.checksum) {
+      gameToUpdate.checksum = updatesToApply.checksum;
+    }
 
     const updatedGame = await this.gamesService.save(gameToUpdate);
     this.logger.log({
