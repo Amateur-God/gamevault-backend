@@ -149,7 +149,31 @@ preserved in each fork.
 
 ---
 
-## 8. Upstream sync workflow
+## 8. Baseline verification results (2026-08-19)
+
+Unmodified upstream stack verified green before feature work:
+
+- **Backend:** PostgreSQL 16 (Docker, host port 5433) connected; TypeORM
+  migration completed successfully (POSTGRESQL); `pnpm test` = **381/381
+  passing** (43 suites) after the cross-platform test fix; server **HEALTHY**
+  at `http://localhost:8080` (`/api/status`, version 16.3.0); Swagger at
+  `/api/docs`.
+- **Frontend:** `pnpm install` generated the typescript-fetch API client from
+  the local backend OpenAPI; Vite dev server at `http://localhost:5173`;
+  connected to the backend at `http://localhost:8080` and rendered the
+  login/registration screen.
+- **App:** `dotnet build gamevault.sln -c Debug` = **0 errors** (2075 benign
+  CA1416 Windows-platform warnings); launched successfully (window "GameVault").
+
+Baseline fork commits (on `develop`):
+- backend: `271879f` (test: cross-platform path assertions), `e83df0f` (docs/tooling)
+- frontend: `dc1b281` (build: OpenAPI client from local backend)
+
+The only upstream test failure on Windows (a POSIX vs Windows path-separator
+assertion in `files.service.spec.ts`) was fixed cross-platform; this is an
+upstreamable improvement, not a fork-specific behavior change.
+
+## 9. Upstream sync workflow
 
 ```powershell
 git fetch upstream
