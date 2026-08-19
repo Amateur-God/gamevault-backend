@@ -1,3 +1,7 @@
+// organize-imports-ignore
+// NOTE: Import order is intentional and must not be auto-sorted. AchievementsModule
+// and PlaySessionsModule are imported last so they do not trigger the pre-existing
+// media <-> users <-> games module require-cycle before those modules finish loading.
 import { Module } from "@nestjs/common";
 import { ConfigModule as NestConfigModule } from "@nestjs/config";
 import { APP_INTERCEPTOR } from "@nestjs/core";
@@ -21,6 +25,8 @@ import { SavefileModule } from "./modules/savefiles/savefile.module";
 import { StatusModule } from "./modules/status/status.module";
 import { UsersModule } from "./modules/users/users.module";
 import { WebUIModule } from "./modules/web-ui/web-ui.module";
+import { PlaySessionsModule } from "./modules/play-sessions/play-sessions.module";
+import { AchievementsModule } from "./modules/achievements/achievements.module";
 
 @Module({
   imports: [
@@ -37,6 +43,8 @@ import { WebUIModule } from "./modules/web-ui/web-ui.module";
     GamesModule,
     UsersModule,
     ProgressModule,
+    PlaySessionsModule,
+    AchievementsModule,
     SavefileModule,
     MetadataModule,
     AdminModule,
