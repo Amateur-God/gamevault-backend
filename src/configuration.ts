@@ -369,6 +369,21 @@ const configuration = {
       CLIENT_ID: resolveEnv("METADATA_IGDB_CLIENT_ID") || undefined,
       CLIENT_SECRET: resolveEnv("METADATA_IGDB_CLIENT_SECRET") || undefined,
     } as const,
+    STEAM: {
+      ENABLED: parseBooleanEnvVariable(
+        resolveEnv("METADATA_STEAM_ENABLED"),
+        true,
+      ),
+      PRIORITY: parseNumber(resolveEnv("METADATA_STEAM_PRIORITY"), 8),
+      REQUEST_INTERVAL_MS: parseNumber(
+        resolveEnv("METADATA_STEAM_REQUEST_INTERVAL_MS"),
+        250,
+      ),
+      // Optional. Only required to import achievement schemas, user unlock
+      // state, and historical playtime (Steam Web API). Store metadata
+      // (appdetails/search) works without a key.
+      API_KEY: resolveEnv("METADATA_STEAM_API_KEY") || undefined,
+    } as const,
   } as const,
   TESTING: {
     AUTHENTICATION_DISABLED: parseBooleanEnvVariable(
