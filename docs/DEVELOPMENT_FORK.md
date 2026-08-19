@@ -73,7 +73,10 @@ Orchestrated, not forked: **[LizardByte/Sunshine](https://github.com/LizardByte/
 
 ## 4. Service dependencies
 
-- **PostgreSQL 16** (dev): run via Docker (`backend/docker-compose.dev.yml`), exposed on `localhost:5432`.
+- **PostgreSQL 16** (dev): run via Docker (`backend/docker-compose.dev.yml`), exposed on
+  `localhost:5433` (host 5432 was already occupied, so the compose maps `5433:5432`).
+  Credentials are `gamevault` / `gamevault` / `gamevault` to match the hardcoded standalone
+  migration config (`src/modules/database/migrations/postgres.migration-config.ts`).
   Alternative for fully-offline/no-Docker dev: set `DB_SYSTEM=SQLITE` (uses `better-sqlite3`).
 - No other external services are required for the baseline.
 
@@ -121,8 +124,8 @@ Backend configuration is resolved by `backend/src/configuration.ts`
 | Variable | Default | Notes |
 |----------|---------|-------|
 | `DB_SYSTEM` | `POSTGRESQL` | or `SQLITE` |
-| `DB_HOST` / `DB_PORT` | `localhost` / `5432` | Postgres connection |
-| `DB_USERNAME` / `DB_PASSWORD` / `DB_DATABASE` | `default` / `default` / `gamevault` | Postgres credentials |
+| `DB_HOST` / `DB_PORT` | `localhost` / `5432` | dev `.env` uses `5433` (compose maps `5433:5432`) |
+| `DB_USERNAME` / `DB_PASSWORD` / `DB_DATABASE` | `default` / `default` / `gamevault` | dev uses `gamevault`/`gamevault`/`gamevault` |
 | `DB_SYNCHRONIZE` | `false` | when false, migrations run on start |
 | `SERVER_PORT` | `8080` | HTTP port |
 | `SERVER_REGISTRATION_DISABLED` | `false` | allow first-user registration |
