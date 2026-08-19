@@ -5,6 +5,7 @@ import {
 } from "@nestjs/common";
 import { SchedulerRegistry } from "@nestjs/schedule";
 import { constants } from "fs-extra";
+import { join } from "path";
 import { MetadataService } from "../metadata/metadata.service";
 import { FilesService } from "./files.service";
 import { GamesService } from "./games.service";
@@ -152,19 +153,20 @@ describe("FilesService", () => {
         size: 7,
       } as any);
 
+      const expectedFilePath = join("/tmp/test-files", "My Game.zip");
       expect(fsExtra.access).toHaveBeenCalledWith(
         "/tmp/test-files",
         constants.W_OK,
       );
       expect(fsExtra.writeFile).toHaveBeenCalledWith(
-        "/tmp/test-files/My Game.zip",
+        expectedFilePath,
         expect.any(Buffer),
       );
       expect((service as any).index).toHaveBeenCalledWith(
-        "/tmp/test-files/My Game.zip",
+        expectedFilePath,
         expect.any(Object),
       );
-      expect(result).toEqual({ path: "/tmp/test-files/My Game.zip" });
+      expect(result).toEqual({ path: expectedFilePath });
     });
   });
 
